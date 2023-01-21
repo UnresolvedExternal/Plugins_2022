@@ -1,0 +1,5 @@
+﻿#engine
+	#patch
+		LoadPlugins("zExtendedAniUsage.dll")
+	#/patch
+#/engine

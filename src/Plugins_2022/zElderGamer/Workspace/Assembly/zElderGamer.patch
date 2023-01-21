@@ -1,0 +1,5 @@
+﻿#engine
+	#patch
+		LoadPlugins("zElderGamer.dll")
+	#/patch
+#/engine

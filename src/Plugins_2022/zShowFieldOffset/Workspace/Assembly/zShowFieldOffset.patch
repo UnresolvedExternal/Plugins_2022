@@ -1,0 +1,5 @@
+﻿#engine
+	#patch
+		LoadPlugins("zShowFieldOffset.dll")
+	#/patch
+#/engine

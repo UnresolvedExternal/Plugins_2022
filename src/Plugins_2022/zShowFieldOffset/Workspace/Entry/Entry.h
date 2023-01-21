@@ -8,7 +8,7 @@ namespace NAMESPACE
 	
 	Sub showOffset(ZSUB(GameEvent::Execute), []
 		{
-			FIELDS(zCEventManager, messageList);
+			FIELDS(zCVob, nextOnTimer);
 
 			std::vector<string> strings;
 			strings.resize(4);
@@ -50,7 +50,7 @@ namespace NAMESPACE
 			}
 			
 			std::string str = out.str();
-			cmd << str.c_str() << endl; 
+			cmd << str << endl; 
 
 			OpenClipboard(NULL);
 			EmptyClipboard();

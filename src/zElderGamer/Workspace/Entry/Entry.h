@@ -257,4 +257,25 @@ namespace NAMESPACE
 	}
 
 #endif
+
+	void __fastcall Hook_zCModel_CalcModelBBox3DWorld(zCModel*, void*);
+	Hook<void(__thiscall*)(zCModel*)> Ivk_zCModel_CalcModelBBox3DWorld(ZENFOR(0x0055F8F0, 0x00577D10, 0x00573EC0, 0x00579170), &Hook_zCModel_CalcModelBBox3DWorld, HookMode::Patch);
+	void __fastcall Hook_zCModel_CalcModelBBox3DWorld(zCModel* model, void* vtable)
+	{
+		if (model->nodeList.GetNum() == 0)
+			return Ivk_zCModel_CalcModelBBox3DWorld(model);
+
+		model->bbox3D.InitZero();
+
+		for (zCModelNodeInst* node : model->nodeList)
+		{
+			zVEC3 pos = model->GetTrafoNodeToModel(node).GetTranslation();
+
+			for (int i = 0; i < 3; i++)
+			{
+				model->bbox3D.mins[i] = std::min(model->bbox3D.mins[i], pos[i]);
+				model->bbox3D.maxs[i] = std::max(model->bbox3D.maxs[i], pos[i]);
+			}
+		}
+	}
 }

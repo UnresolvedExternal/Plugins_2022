@@ -393,7 +393,7 @@ namespace NAMESPACE
 	}
 
 	void __fastcall Hook_zCModel_AdvanceAnis(zCModel*, void*);
-	Hook<void(__thiscall*)(zCModel*)> Ivk_zCModel_AdvanceAnis(ZENFOR(0x00562CD0, 0x0057B430, 0x00577570, 0x0057CA90), &Hook_zCModel_AdvanceAnis, HookMode::Patch);
+	Hook<void(__thiscall*)(zCModel*), ActiveOption<bool>> Ivk_zCModel_AdvanceAnis(ZENFOR(0x00562CD0, 0x0057B430, 0x00577570, 0x0057CA90), &Hook_zCModel_AdvanceAnis, HookMode::Patch, Options::SmoothRootPos);
 	void __fastcall Hook_zCModel_AdvanceAnis(zCModel* model, void* vtable)
 	{
 		Ivk_zCModel_AdvanceAnis(model);

@@ -392,13 +392,48 @@ namespace NAMESPACE
 			}
 	}
 
-	bool calcWeights = true;
-
-	void __fastcall Hook_zCModelNodeInst_CalcWeights(zCModelNodeInst*, void*, zCModel*);
-	Hook<void(__thiscall*)(zCModelNodeInst*, zCModel*)> Ivk_zCModelNodeInst_CalcWeights(ZENFOR(0x005653F0, 0x0057DD70, 0x00579F50, 0x0057F470), &Hook_zCModelNodeInst_CalcWeights, HookMode::Patch);
-	void __fastcall Hook_zCModelNodeInst_CalcWeights(zCModelNodeInst* _this, void* vtable, zCModel* a0)
+	void __fastcall Hook_zCModel_AdvanceAnis(zCModel*, void*);
+	Hook<void(__thiscall*)(zCModel*)> Ivk_zCModel_AdvanceAnis(ZENFOR(0x00562CD0, 0x0057B430, 0x00577570, 0x0057CA90), &Hook_zCModel_AdvanceAnis, HookMode::Patch);
+	void __fastcall Hook_zCModel_AdvanceAnis(zCModel* model, void* vtable)
 	{
-		if (calcWeights)
-			Ivk_zCModelNodeInst_CalcWeights(_this, a0);
+		Ivk_zCModel_AdvanceAnis(model);
+
+		for (zCModelNodeInst* node : model->nodeList)
+			if (!node->parentNode)
+			{
+				float modAnis = 0.0f;
+				float totalWeight = 0.0f;
+
+				for (int i = 0; i < node->numNodeAnis; i++)
+				{
+					const auto& flags = node->nodeAniList[i].modelAni->protoAni->aniFlags;
+
+					if (!flags.flagVobPos && !flags.flagVobRot)
+						continue;
+
+					modAnis += 1.0f;
+					totalWeight += node->nodeAniList[i].weight;
+				}
+
+				if (totalWeight < 0.01f)
+					return;
+
+				model->rootPosLocal = {};
+
+				for (int i = 0; i < node->numNodeAnis; i++)
+				{
+					const auto& flags = node->nodeAniList[i].modelAni->protoAni->aniFlags;
+
+					if (!flags.flagVobPos && !flags.flagVobRot)
+						continue;
+
+					model->rootPosLocal += node->nodeAniList[i].modelAni->thisPos * (node->nodeAniList[i].weight / totalWeight);
+				}
+
+				if (model->modelScaleOn)
+					model->rootPosLocal = Alg_Prod(model->rootPosLocal, model->modelScale);
+
+				return;
+			}
 	}
 }

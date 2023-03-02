@@ -1,6 +1,6 @@
 namespace NAMESPACE
 {
-	oCMsgConversation::TConversationSubType oCMsgConversation_EV_PlayAniWithEvents;
+	oCMsgConversation::TConversationSubType oCMsgConversation_EV_PlayAniWithEvents = static_cast<oCMsgConversation::TConversationSubType>(-12345);
 
 	void __fastcall Hook_oCNpc_OnMessage(oCNpc*, void*, zCEventMessage*, zCVob*);
 	Hook<void(__thiscall*)(oCNpc*, zCEventMessage*, zCVob*)> Ivk_oCNpc_OnMessage(ZENFOR(0x006A69E0, 0x006D95F0, 0x006EC360, 0x0074B020), &Hook_oCNpc_OnMessage, HookMode::Patch);
@@ -9,14 +9,37 @@ namespace NAMESPACE
 		if (oCMsgConversation* conversation = dynamic_cast<oCMsgConversation*>(event))
 			if (conversation->subType == oCMsgConversation_EV_PlayAniWithEvents)
 			{
-				if (npc->EV_PlayAni(conversation))
-					conversation->Delete();
-
+				conversation->subType = oCMsgConversation::EV_PLAYANI;
+				Ivk_oCNpc_OnMessage(npc, conversation, vob);
+				conversation->subType = oCMsgConversation_EV_PlayAniWithEvents;
 				npc->DoDoAniEvents();
 				return;
 			}
 
 		Ivk_oCNpc_OnMessage(npc, event, vob);
+	}
+
+	zSTRING* __stdcall Hook_oCMsgConversation_MD_GetSubTypeString(zSTRING*, int);
+	Hook<zSTRING* (__stdcall*)(zSTRING*, int)> Ivk_oCMsgConversation_MD_GetSubTypeString(ZENFOR(0x006C39A0, 0x006F8DE0, 0x0070B620, 0x0076AB60), &Hook_oCMsgConversation_MD_GetSubTypeString, HookMode::Patch);
+	zSTRING* __stdcall Hook_oCMsgConversation_MD_GetSubTypeString(zSTRING* result, int subType)
+	{
+		if (subType == oCMsgConversation_EV_PlayAniWithEvents)
+		{
+			result->zSTRING_OnInit("EV_PLAYANIWITHEVENTS");
+			return result;
+		}
+		
+		return Ivk_oCMsgConversation_MD_GetSubTypeString(result, subType);
+	}
+
+	int __fastcall Hook_oCMsgConversation_IsOverlay(oCMsgConversation*, void*);
+	Hook<int(__thiscall*)(oCMsgConversation*)> Ivk_oCMsgConversation_IsOverlay(ZENFOR(0x006C3960, 0x006F8D90, 0x0070B5C0, 0x0076AB00), &Hook_oCMsgConversation_IsOverlay, HookMode::Patch);
+	int __fastcall Hook_oCMsgConversation_IsOverlay(oCMsgConversation* message, void* vtable)
+	{
+		if (message->subType == oCMsgConversation_EV_PlayAniWithEvents)
+			return false;
+
+		return Ivk_oCMsgConversation_IsOverlay(message);
 	}
 
 	int __cdecl AI_PlayAniWithEvents()
@@ -40,45 +63,18 @@ namespace NAMESPACE
 
 	ZEXTERNAL(void, AI_PlayAniWithEvents, oCNpc*, zSTRING, int);
 
-	inline zSTRING* __stdcall Ivk_oCMsgConversation_MD_GetSubTypeString(zSTRING*, int)
+	int __fastcall Hook_oCMsgConversation_MD_GetNumOfSubTypes(oCMsgConversation*, void*);
+	Hook<int(__thiscall*)(oCMsgConversation*)> Ivk_oCMsgConversation_MD_GetNumOfSubTypes(ZENFOR(0x006C3760, 0x006F8B70, 0x0070B3C0, 0x0076A900), &Hook_oCMsgConversation_MD_GetNumOfSubTypes, HookMode::Patch);
+	int __fastcall Hook_oCMsgConversation_MD_GetNumOfSubTypes(oCMsgConversation* message, void* vtable)
 	{
-		XCALL(ZENDEF(0x006C39A0, 0x006F8DE0, 0x0070B620, 0x0076AB60));
-	}
-
-	int __fastcall oCMsgConversation_IsOverlay(oCMsgConversation* message, void* vtable)
-	{
-		if (message->subType == oCMsgConversation_EV_PlayAniWithEvents)
-			return false;
-
-		return message->oCMsgConversation::IsOverlay();
-	}
-
-	int __fastcall oCMsgConversation_MD_GetNumOfSubTypes(oCMsgConversation* message, void* vtable)
-	{
-		return oCMsgConversation_EV_PlayAniWithEvents + 1;
-	}
-
-	zSTRING* __stdcall oCMsgConversation_MD_GetSubTypeString(zSTRING* result, int subType)
-	{
-		if (subType == oCMsgConversation_EV_PlayAniWithEvents)
-		{
-			result->zSTRING_OnInit("EV_PLAYANIWITHEVENTS");
-			return result;
-		}
-		else
-			return Ivk_oCMsgConversation_MD_GetSubTypeString(result, subType);
+		return Ivk_oCMsgConversation_MD_GetNumOfSubTypes(message) + 1;
 	}
 
 	Sub changeVirtuals(ZSUB(GameEvent::Entry), []
 		{
 			oCMsgConversation* message = new oCMsgConversation{};
-			oCMsgConversation_EV_PlayAniWithEvents = static_cast<oCMsgConversation::TConversationSubType>(message->MD_GetNumOfSubTypes());
+			oCMsgConversation_EV_PlayAniWithEvents = static_cast<oCMsgConversation::TConversationSubType>(Ivk_oCMsgConversation_MD_GetNumOfSubTypes(message));
 			message->Release();
-
-			auto& vtable = vftable_oCMsgConversation::GetTable();
-			vtable.names.f04_IsOverlay = &oCMsgConversation_IsOverlay;
-			vtable.names. ZENDEF2(f13_MD_GetNumOfSubTypes, f14_MD_GetNumOfSubTypes) = &oCMsgConversation_MD_GetNumOfSubTypes;
-			vtable.names. ZENDEF2(f14_MD_GetSubTypeString, f15_MD_GetSubTypeString) = &oCMsgConversation_MD_GetSubTypeString;
 		});
 
 	void __fastcall Hook_oCNpc_CheckSetTorchAni(oCNpc*, void*);
@@ -87,7 +83,7 @@ namespace NAMESPACE
 	{
 		oCNpc::TActiveInfo* info = npc->GetActiveInfoWritable();
 
-		if (zCModel* model = npc->GetModel())
+		if (zCModel* model = dynamic_cast<zCModel*>(npc->visual))
 			if (oCAniCtrl_Human* anictrl = npc->anictrl)
 				if (info && info->changeTorchAni)
 					if (int weaponMode = npc->GetWeaponMode())

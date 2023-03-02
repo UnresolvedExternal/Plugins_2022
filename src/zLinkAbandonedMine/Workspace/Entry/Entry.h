@@ -1,11 +1,61 @@
 namespace NAMESPACE
 {
-	Sub onLoadEnd(ZSUB(GameEvent::LoadEnd), []
+	class TemporaryTriggerChange
+	{
+	private:
+		std::vector<Sub<void>> subs;
+		ZOwner<oCTriggerChangeLevel> trigger;
+		zSTRING levelName;
+		zSTRING startVob;
+
+		void OnLoadBegin()
+		{
+			delete this;
+		}
+
+		void OnSaveBegin()
+		{
+			std::swap(trigger->levelName, levelName);
+			std::swap(trigger->startVob, startVob);
+		}
+
+		void OnSaveEnd()
+		{
+			std::swap(trigger->levelName, levelName);
+			std::swap(trigger->startVob, startVob);
+		}
+
+		void OnExit()
+		{
+			delete this;
+		}
+
+		~TemporaryTriggerChange()
+		{
+			trigger->levelName = levelName;
+			trigger->startVob = startVob;
+		}
+
+	public:
+		TemporaryTriggerChange(oCTriggerChangeLevel* trigger, const zSTRING& levelName, const zSTRING& startVob) :
+			trigger{ trigger },
+			levelName{ trigger->levelName },
+			startVob{ trigger->startVob }
+		{
+			trigger->AddRef();
+			trigger->levelName = levelName;
+			trigger->startVob = startVob;
+
+			ADDSUB(LoadBegin);
+			ADDSUB(SaveBegin);
+			ADDSUB(SaveEnd);
+			ADDSUB(Exit);
+		}
+	};
+
+	Sub changeTrigger(ZSUB(GameEvent::LoadEnd), []
 		{
 			oCWorld* const world = ogame->GetGameWorld();
-
-			if (!world)
-				return;
 
 			zSTRING triggerName;
 			zSTRING levelName;
@@ -27,9 +77,6 @@ namespace NAMESPACE
 				return;
 
 			if (oCTriggerChangeLevel* trigger = dynamic_cast<oCTriggerChangeLevel*>(world->SearchVobByName(triggerName)))
-			{
-				trigger->levelName = levelName;
-				trigger->startVob = startVob;
-			}
+				new TemporaryTriggerChange{ trigger, levelName, startVob };
 		});
 }

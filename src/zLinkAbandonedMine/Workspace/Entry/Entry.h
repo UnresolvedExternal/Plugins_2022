@@ -53,30 +53,42 @@ namespace NAMESPACE
 		}
 	};
 
-	Sub changeTrigger(ZSUB(GameEvent::LoadEnd), []
+	extern Sub<void> changeTrigger;
+	Sub<void> changeTrigger(ZSUB(GameEvent::LoadEnd), []
 		{
+			for (const zSTRING& varName : { "zLinkAbandonedMineDisabled", "TowerWorld_zen", "UnnamedMod_PotionSpeed", "Union_SmithUnnamedHero12IsRunning" })
+				if (parser->GetSymbol(varName))
+				{
+					changeTrigger = {};
+					return;
+				}
+
 			oCWorld* const world = ogame->GetGameWorld();
 
 			zSTRING triggerName;
 			zSTRING levelName;
 			zSTRING startVob;
+			zSTRING requiredLevelName;
 
 			if (world->worldName.CompareI("NEWWORLD"))
 			{
 				triggerName = "NW_2_OW_ABANDONEDMINE";
 				levelName = "ABANDONEDMINE.ZEN";
 				startVob = "START_NW";
+				requiredLevelName = "OLDWORLD\\OLDWORLD.ZEN";
 			}
 			else if (world->worldName.CompareI("OLDWORLD"))
 			{
 				triggerName = "OW_2_NW_ABANDONEDMINE";
 				levelName = "ABANDONEDMINE.ZEN";
 				startVob = "START_OW";
+				requiredLevelName = "NEWWORLD\\NEWWORLD.ZEN";
 			}
 			else
 				return;
 
 			if (oCTriggerChangeLevel* trigger = dynamic_cast<oCTriggerChangeLevel*>(world->SearchVobByName(triggerName)))
-				new TemporaryTriggerChange{ trigger, levelName, startVob };
+				if (trigger->levelName.CompareI(requiredLevelName))
+					new TemporaryTriggerChange{ trigger, levelName, startVob };
 		});
 }

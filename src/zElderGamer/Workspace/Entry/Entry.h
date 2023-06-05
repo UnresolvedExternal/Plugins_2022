@@ -193,7 +193,7 @@ namespace NAMESPACE
 	Hook<TMobOptPos* (__thiscall*)(oCMobInter*, oCNpc*)> Ivk_oCMobInter_SearchFreePosition(ZENFOR(0x0067CD60, 0x00000000, 0x00000000, 0x00000000), &Hook_oCMobInter_SearchFreePosition, HookMode::Patch);
 	TMobOptPos* __fastcall Hook_oCMobInter_SearchFreePosition(oCMobInter* mob, void* vtable, oCNpc* npc)
 	{
-		if (mob->npcsCurrent > mob->npcsMax)
+		if (mob->npcsCurrent >= mob->npcsMax)
 			return nullptr;
 
 		bool toFar = false;
@@ -258,7 +258,7 @@ namespace NAMESPACE
 	Hook<void(__thiscall*)(zCModel*)> Ivk_zCModel_CalcModelBBox3DWorld(ZENFOR(0x0055F8F0, 0x00577D10, 0x00573EC0, 0x00579170), &Hook_zCModel_CalcModelBBox3DWorld, HookMode::Patch);
 	void __fastcall Hook_zCModel_CalcModelBBox3DWorld(zCModel* model, void* vtable)
 	{
-		if (model->nodeList.GetNum() == 0)
+		if (model->nodeList.GetNum() == 0 || !model->homeVob || model->homeVob->type != zVOB_TYPE_NSC)
 			return Ivk_zCModel_CalcModelBBox3DWorld(model);
 
 		model->bbox3D.InitZero();

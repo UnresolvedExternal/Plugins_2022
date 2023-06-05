@@ -406,13 +406,14 @@ namespace NAMESPACE
 
 				for (int i = 0; i < node->numNodeAnis; i++)
 				{
-					const auto& flags = node->nodeAniList[i].modelAni->protoAni->aniFlags;
+					zCModelAniActive* const modelAni = node->nodeAniList[i].modelAni;
+					const auto& flags = modelAni->protoAni->aniFlags;
 
-					if (!flags.flagVobPos && !flags.flagVobRot)
+					if (modelAni->transWeight <= 0.0f)
 						continue;
 
 					modAnis += 1.0f;
-					totalWeight += node->nodeAniList[i].weight;
+					totalWeight += modelAni->transWeight;
 				}
 
 				if (totalWeight < 0.01f)
@@ -422,12 +423,13 @@ namespace NAMESPACE
 
 				for (int i = 0; i < node->numNodeAnis; i++)
 				{
-					const auto& flags = node->nodeAniList[i].modelAni->protoAni->aniFlags;
+					zCModelAniActive* const modelAni = node->nodeAniList[i].modelAni;
+					const auto& flags = modelAni->protoAni->aniFlags;
 
-					if (!flags.flagVobPos && !flags.flagVobRot)
+					if (modelAni->transWeight <= 0.0f)
 						continue;
 
-					model->rootPosLocal += node->nodeAniList[i].modelAni->thisPos * (node->nodeAniList[i].weight / totalWeight);
+					model->rootPosLocal += modelAni->thisPos * (modelAni->transWeight / totalWeight);
 				}
 
 				if (model->modelScaleOn)

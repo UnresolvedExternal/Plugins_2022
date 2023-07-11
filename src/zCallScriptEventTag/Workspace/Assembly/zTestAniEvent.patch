@@ -1,0 +1,49 @@
+#engine [G1, G1A, G2, G2A]
+	#patch [zTestAniEvent]
+		// engine specific
+		INT engine_version = ZenDef(1, 2, 3, 4)
+		
+		INT text_oCNpc_DoDoAniEvents_jne_aniEventType_zMDL_EVENT_TAG = ZenDef(0x0069EED6, 0x006D12EC, 0x006E40A5, 0x00742B05)
+		// end of engine specific
+
+		IF engine_version == 1
+			#assembler [text_oCNpc_DoDoAniEvents_jne_aniEventType_zMDL_EVENT_TAG]
+				orgcode
+				
+				push ebp
+				push ebx
+				call $test_ani_event
+				test eax, eax
+				
+				orgcode
+			#/assembler
+		END
+		
+		IF engine_version == 2
+			#assembler [text_oCNpc_DoDoAniEvents_jne_aniEventType_zMDL_EVENT_TAG]
+				orgcode
+				
+				push ebx
+				mov eax, [esp+0x18]
+				push eax
+				call $test_ani_event
+				test eax, eax
+				
+				orgcode
+			#/assembler
+		END
+		
+		IF engine_version >= 3
+			#assembler [text_oCNpc_DoDoAniEvents_jne_aniEventType_zMDL_EVENT_TAG]
+				orgcode
+				
+				push ebx
+				push ebp
+				call $test_ani_event
+				test eax, eax
+				
+				orgcode
+			#/assembler
+		END
+	#/patch
+#/engine

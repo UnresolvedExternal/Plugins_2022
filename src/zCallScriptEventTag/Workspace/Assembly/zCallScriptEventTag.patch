@@ -1,0 +1,5 @@
+﻿#engine
+	#patch
+		LoadPlugins("zCallScriptEventTag.dll")
+	#/patch
+#/engine

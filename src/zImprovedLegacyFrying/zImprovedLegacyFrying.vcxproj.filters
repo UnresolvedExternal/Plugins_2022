@@ -4659,5 +4659,8 @@
     <CopyFileToFolders Include="Workspace\Assembly\zImprovedLegacyFrying.patch">
       <Filter>Plugin\Workspace\Assembly</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Workspace\Assembly\zImprovedLegacyFrying.d">
+      <Filter>Plugin\Workspace\Assembly</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

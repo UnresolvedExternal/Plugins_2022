@@ -7,9 +7,17 @@ namespace NAMESPACE
 	{
 #define TEST(cond) { if (!(cond)) continue; }
 
+		static bool hasMutton = 
+			Symbol{ parser, "ITFOMUTTON" }.GetType() == Symbol::Type::Instance && 
+			Symbol{ parser, "ITFOMUTTONRAW" }.GetType() == Symbol::Type::Instance;
+
+		if (!hasMutton)
+			return;
+
 		for (zCVob* vob : ogame->GetGameWorld()->voblist)
 			if (oCMobInter* mob = dynamic_cast<oCMobInter*>(vob))
 			{
+				TEST(mob->sceme == "PAN" || mob->sceme == "STOVE");
 				TEST(mob->conditionFunc.IsEmpty());
 				TEST(mob->onStateFuncName.IsEmpty());
 				TEST(mob->useWithItem.CompareI("ItFoMuttonRaw"));
@@ -70,7 +78,7 @@ namespace NAMESPACE
 
 	std::pair<int*, int*> SearchByPrefix(zCParser* parser, const zSTRING& prefix)
 	{
-		return std::equal_range(begin(parser->symtab.tablesort), end(parser->symtab.tablesort), -1, [parser, prefix](int x, int y)
+		return std::equal_range(begin(parser->symtab.tablesort), end(parser->symtab.tablesort), -1, [parser, &prefix](int x, int y)
 			{
 				if (x == y)
 					return false;

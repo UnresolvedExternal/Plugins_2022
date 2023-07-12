@@ -1504,6 +1504,9 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='G1A Debug|Win32'">false</DeploymentContent>
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Workspace\Assembly\zImprovedLegacyFrying.d">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <None Include="ZenGin\Gothic_UserAPI\CGameManager.inl" />
     <None Include="ZenGin\Gothic_UserAPI\oCAIArrow.inl" />
     <None Include="ZenGin\Gothic_UserAPI\oCAIArrowBase.inl" />

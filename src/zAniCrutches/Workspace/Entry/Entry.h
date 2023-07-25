@@ -6,7 +6,7 @@ namespace NAMESPACE
 {
 	zSTRING GetWeaponString(int mode)
 	{
-		static auto getWeaponString = reinterpret_cast<zSTRING*(__cdecl*)(zSTRING*, int)>(ZENDEF(0x00626100, 0x0064AF70, 0x006523E0, 0x006AEC60));
+		static auto getWeaponString = reinterpret_cast<zSTRING * (__cdecl*)(zSTRING*, int)>(ZENDEF(0x00626100, 0x0064AF70, 0x006523E0, 0x006AEC60));
 
 		zSTRING result;
 		return *getWeaponString(&result, mode);
@@ -67,7 +67,7 @@ namespace NAMESPACE
 		for (const std::string& pattern : *Options::BlendInAnis)
 		{
 			const std::string aniName = ExpandPattern(pattern);
-			AniBlendOverrideData& override = overrides.emplace_back();
+			AniBlendOverrideData & override = overrides.emplace_back();
 			override.regex = std::regex{ std::string{"^"} + aniName + "$" };
 			override.blendIn = *Options::BlendInValue;
 		}
@@ -75,7 +75,7 @@ namespace NAMESPACE
 		for (const std::string& pattern : *Options::BlendOutAnis)
 		{
 			const std::string aniName = ExpandPattern(pattern);
-			AniBlendOverrideData& override = overrides.emplace_back();
+			AniBlendOverrideData & override = overrides.emplace_back();
 			override.regex = std::regex{ std::string{"^"} + aniName + "$" };
 			override.blendOut = -*Options::BlendOutValue;
 		}
@@ -113,7 +113,7 @@ namespace NAMESPACE
 
 	public:
 		ModelLogger(zCModelPrototype& proto) :
-			proto{ proto }, 
+			proto{ proto },
 			logged{ false }
 		{
 
@@ -164,7 +164,7 @@ namespace NAMESPACE
 			float newBlendIn;
 			float newBlendOut;
 			ani.GetBlendingSec(newBlendIn, newBlendOut);
-			
+
 			const zTMdl_AniType newAniType = ani.aniType;
 
 			if (newBlendIn == blendIn && newBlendOut == blendOut && newAniType == aniType && bboxMinY == ani.aniBBox3DObjSpace.mins[VY])
@@ -232,6 +232,92 @@ namespace NAMESPACE
 			ani->aniBBox3DObjSpace.mins[VY] = sourceAni->aniBBox3DObjSpace.mins[VY];
 	}
 
+	std::vector<int> ParseValues(const zSTRING& text)
+	{
+		std::vector<int> values;
+		zSTRING word;
+
+		for (int i = 0; i < text.Length(); i++)
+			if (isspace(text.ToChar()[i]))
+			{
+				if (!word.IsEmpty())
+				{
+					values += static_cast<int>(word.ToInt32());
+					word.Clear();
+				}
+			}
+			else
+				word += text.ToChar()[i];
+
+		if (!word.IsEmpty())
+			values += static_cast<int>(word.ToInt32());
+
+		return values;
+	}
+
+	void TryCorrectComboAni(zCModelAni* ani)
+	{
+		if (!Options::CorrectComboFrames)
+			return;
+
+		const bool isFist = ani->aniName == "S_FISTATTACK";
+
+		if (!isFist && ani->aniName != "S_1HATTACK" && ani->aniName != "S_2HATTACK")
+			return;
+
+		if (ani->blendOutSpeed == zMDL_ANI_BLEND_OUT_ZERO)
+			return;
+
+		zSTRING* hitEnd = nullptr;
+		zSTRING* window = nullptr;
+
+		for (int i = 0; i < ani->numAniEvents; i++)
+		{
+			zCModelAniEvent& event = ani->aniEvents[i];
+
+			if (event.aniEventType != zTMdl_AniEventType::zMDL_EVENT_TAG)
+				continue;
+
+			if (event.tagString == "DEF_HIT_END")
+				hitEnd = &event.string[0];
+			else if (event.tagString == "DEF_WINDOW")
+				window = &event.string[0];
+		}
+
+		if (!hitEnd || !window)
+			return;
+
+		std::vector<int> hitEndValues = ParseValues(*hitEnd);
+		std::vector<int> windowValues = ParseValues(*window);
+
+		const int blendOutFrames = static_cast<int>(ceilf(ani->fpsRate * (-1.0f / ani->blendOutSpeed))) + 2;
+
+		for (size_t i = 0; i < hitEndValues.size(); i++)
+		{
+			if (i * 2 + 1 >= windowValues.size())
+				continue;
+
+			if (i < hitEndValues.size() - 1 && !isFist)
+			{
+				hitEndValues[i] = std::min(hitEndValues[i], windowValues[i * 2 + 1] - blendOutFrames);
+				hitEndValues[i] = std::max(hitEndValues[i], windowValues[i * 2] + 1);
+				hitEndValues[i] = std::max(hitEndValues[i], 0);
+			}
+			else
+				hitEndValues[i] = std::min(hitEndValues[i], ani->numFrames - 1);
+		}
+
+		hitEnd->Clear();
+
+		for (size_t i = 0; i < hitEndValues.size(); i++)
+		{
+			if (!hitEnd->IsEmpty())
+				*hitEnd += " ";
+
+			*hitEnd += zSTRING{ hitEndValues[i] };
+		}
+	}
+
 	zCModelPrototype* __cdecl Hook_zCModelPrototype_Load(zSTRING const&, zCModelPrototype*);
 	Hook<zCModelPrototype* (__cdecl*)(zSTRING const&, zCModelPrototype*)> Ivk_zCModelPrototype_Load(ZENFOR(0x0056EA80, 0x00587E10, 0x00583CF0, 0x00589250), &Hook_zCModelPrototype_Load, HookMode::Hook);
 	zCModelPrototype* __cdecl Hook_zCModelPrototype_Load(zSTRING const& name, zCModelPrototype* baseProto)
@@ -263,6 +349,12 @@ namespace NAMESPACE
 
 						if (override.blendOut && ani->blendOutSpeed < 1.0f / override.blendOut.value())
 							ani->blendOutSpeed = 1.0f / override.blendOut.value();
+
+						if (ani->fpsRate > 0.0f && ani->numFrames > 0)
+						{
+							const float duration = static_cast<float>(ani->numFrames) / ani->fpsRate;
+							ani->blendInSpeed = std::max(ani->blendInSpeed, 1.0f / duration);
+						}
 					}
 
 				if (Options::InstantCombatSneakToStand && combatSneakRightToStandAnis.find(ani->aniName) != combatSneakRightToStandAnis.end())
@@ -273,6 +365,7 @@ namespace NAMESPACE
 				}
 
 				TryCorrectBBox(proto, ani);
+				TryCorrectComboAni(ani);
 			}
 		}
 

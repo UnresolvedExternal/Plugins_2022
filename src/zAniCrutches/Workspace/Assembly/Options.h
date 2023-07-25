@@ -11,6 +11,7 @@ namespace NAMESPACE
 		ZOPTION(CorrectJumpBBoxes, false);
 		ZOPTION(SmoothOverlaySwitch, false);
 		ZOPTION(SmoothRootPos, true);
+		ZOPTION(CorrectComboFrames, true);
 	}
 
 	namespace Options
@@ -27,6 +28,7 @@ namespace NAMESPACE
 				SmoothOverlaySwitch.endTrivia += A"... more accurate animation transitions when an overlay gets applied/removed";
 				SmoothOverlaySwitch.endTrivia += A"incompatible with zModelProtoExtender";
 				SmoothRootPos.endTrivia += A"... smooth vob position change";
+				CorrectComboFrames.endTrivia += A"... adapt fight combo anis for blending";
 			});
 
 		Sub load(ZSUB(GameEvent::DefineExternals), []()

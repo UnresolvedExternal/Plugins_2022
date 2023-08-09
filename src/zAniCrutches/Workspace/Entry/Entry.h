@@ -255,69 +255,6 @@ namespace NAMESPACE
 		return values;
 	}
 
-	void TryCorrectComboAni(zCModelAni* ani)
-	{
-		if (!Options::CorrectComboFrames)
-			return;
-
-		const bool isFist = ani->aniName == "S_FISTATTACK";
-
-		if (!isFist && ani->aniName != "S_1HATTACK" && ani->aniName != "S_2HATTACK")
-			return;
-
-		if (ani->blendOutSpeed == zMDL_ANI_BLEND_OUT_ZERO)
-			return;
-
-		zSTRING* hitEnd = nullptr;
-		zSTRING* window = nullptr;
-
-		for (int i = 0; i < ani->numAniEvents; i++)
-		{
-			zCModelAniEvent& event = ani->aniEvents[i];
-
-			if (event.aniEventType != zTMdl_AniEventType::zMDL_EVENT_TAG)
-				continue;
-
-			if (event.tagString == "DEF_HIT_END")
-				hitEnd = &event.string[0];
-			else if (event.tagString == "DEF_WINDOW")
-				window = &event.string[0];
-		}
-
-		if (!hitEnd || !window)
-			return;
-
-		std::vector<int> hitEndValues = ParseValues(*hitEnd);
-		std::vector<int> windowValues = ParseValues(*window);
-
-		const int blendOutFrames = static_cast<int>(ceilf(ani->fpsRate * (-1.0f / ani->blendOutSpeed))) + 2;
-
-		for (size_t i = 0; i < hitEndValues.size(); i++)
-		{
-			if (i * 2 + 1 >= windowValues.size())
-				continue;
-
-			if (i < hitEndValues.size() - 1 && !isFist)
-			{
-				hitEndValues[i] = std::min(hitEndValues[i], windowValues[i * 2 + 1] - blendOutFrames);
-				hitEndValues[i] = std::max(hitEndValues[i], windowValues[i * 2] + 1);
-				hitEndValues[i] = std::max(hitEndValues[i], 0);
-			}
-			else
-				hitEndValues[i] = std::min(hitEndValues[i], ani->numFrames - 1);
-		}
-
-		hitEnd->Clear();
-
-		for (size_t i = 0; i < hitEndValues.size(); i++)
-		{
-			if (!hitEnd->IsEmpty())
-				*hitEnd += " ";
-
-			*hitEnd += zSTRING{ hitEndValues[i] };
-		}
-	}
-
 	zCModelPrototype* __cdecl Hook_zCModelPrototype_Load(zSTRING const&, zCModelPrototype*);
 	Hook<zCModelPrototype* (__cdecl*)(zSTRING const&, zCModelPrototype*)> Ivk_zCModelPrototype_Load(ZENFOR(0x0056EA80, 0x00587E10, 0x00583CF0, 0x00589250), &Hook_zCModelPrototype_Load, HookMode::Hook);
 	zCModelPrototype* __cdecl Hook_zCModelPrototype_Load(zSTRING const& name, zCModelPrototype* baseProto)
@@ -365,7 +302,6 @@ namespace NAMESPACE
 				}
 
 				TryCorrectBBox(proto, ani);
-				TryCorrectComboAni(ani);
 			}
 		}
 
@@ -481,53 +417,6 @@ namespace NAMESPACE
 			if (proto->modelProtoName == protoName)
 			{
 				new DelayedOverlayRemoval{ *model, *proto };
-				return;
-			}
-	}
-
-	void __fastcall Hook_zCModel_AdvanceAnis(zCModel*, void*);
-	Hook<void(__thiscall*)(zCModel*), ActiveOption<bool>> Ivk_zCModel_AdvanceAnis(ZENFOR(0x00562CD0, 0x0057B430, 0x00577570, 0x0057CA90), &Hook_zCModel_AdvanceAnis, HookMode::Patch, Options::SmoothRootPos);
-	void __fastcall Hook_zCModel_AdvanceAnis(zCModel* model, void* vtable)
-	{
-		Ivk_zCModel_AdvanceAnis(model);
-
-		for (zCModelNodeInst* node : model->nodeList)
-			if (!node->parentNode)
-			{
-				float modAnis = 0.0f;
-				float totalWeight = 0.0f;
-
-				for (int i = 0; i < node->numNodeAnis; i++)
-				{
-					zCModelAniActive* const modelAni = node->nodeAniList[i].modelAni;
-					const auto& flags = modelAni->protoAni->aniFlags;
-
-					if (modelAni->transWeight <= 0.0f)
-						continue;
-
-					modAnis += 1.0f;
-					totalWeight += modelAni->transWeight;
-				}
-
-				if (totalWeight < 0.01f)
-					return;
-
-				model->rootPosLocal = {};
-
-				for (int i = 0; i < node->numNodeAnis; i++)
-				{
-					zCModelAniActive* const modelAni = node->nodeAniList[i].modelAni;
-					const auto& flags = modelAni->protoAni->aniFlags;
-
-					if (modelAni->transWeight <= 0.0f)
-						continue;
-
-					model->rootPosLocal += modelAni->thisPos * (modelAni->transWeight / totalWeight);
-				}
-
-				if (model->modelScaleOn)
-					model->rootPosLocal = Alg_Prod(model->rootPosLocal, model->modelScale);
-
 				return;
 			}
 	}

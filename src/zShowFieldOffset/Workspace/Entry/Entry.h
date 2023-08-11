@@ -1,3 +1,5 @@
+#include <filesystem>
+
 namespace NAMESPACE
 {
 #define STR(arg) #arg
@@ -8,7 +10,7 @@ namespace NAMESPACE
 	
 	Sub showOffset(ZSUB(GameEvent::Execute), []
 		{
-			FIELDS(zCVob, nextOnTimer);
+			FIELDS(oCMsgManipulate, targetState);
 
 			std::vector<string> strings;
 			strings.resize(4);
@@ -25,6 +27,8 @@ namespace NAMESPACE
 						break;
 					}
 			}
+
+			minZeroes = std::min(minZeroes, 7);
 
 			for (int i = 0; i < 4; i++)
 				strings[i].Cut(2, minZeroes);
@@ -60,6 +64,16 @@ namespace NAMESPACE
 			GlobalUnlock(global);
 			SetClipboardData(CF_TEXT, global);
 			CloseClipboard();
+
+			char exePath[1024];
+			GetModuleFileName(NULL, exePath, sizeof(exePath));
+			std::filesystem::path path{ exePath };
+			path = path.parent_path() / PROJECT_NAME;
+			path.replace_extension(".patch");
+
+			std::error_code error;
+			std::filesystem::remove(path, error);
+
 			exit(0);
 		});
 }

@@ -85,6 +85,32 @@ namespace NAMESPACE
 		return false;
 	}
 
+	int __cdecl Npc_GetSlotTemp()
+	{
+		oCNpc* npc;
+		zSTRING slotName;
+		ZARGS(npc, slotName);
+
+		slotName.Upper();
+		ZRETURN(COA(npc, GetInvSlot(slotName), tmpLevel));
+		return 0;
+	}
+
+	int __cdecl Npc_SetSlotTemp()
+	{
+		oCNpc* npc;
+		zSTRING slotName;
+		int tempLevel;
+		ZARGS(npc, slotName, tempLevel);
+		
+		slotName.Upper();
+
+		if (TNpcSlot* slot = COA(npc, GetInvSlot(slotName)))
+			slot->tmpLevel = tempLevel;
+
+		return 0;
+	}
+
 	int __cdecl Item_GetAmount()
 	{
 		oCItem* item;
@@ -97,5 +123,7 @@ namespace NAMESPACE
 	ZEXTERNAL(void, Npc_TriggerAniEvent, oCNpc*, int, zSTRING, int);
 	ZEXTERNAL(void, Npc_SetInteractItem, oCNpc*, int, int);
 	ZEXTERNAL(oCItem*, Npc_GetInteractItem, oCNpc*);
+	ZEXTERNAL(int, Npc_GetSlotTemp, oCNpc*, zSTRING);
+	ZEXTERNAL(void, Npc_SetSlotTemp, oCNpc*, zSTRING, int);
 	ZEXTERNAL(int, Item_GetAmount, oCItem*);
 }

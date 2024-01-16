@@ -1102,8 +1102,8 @@ namespace Gothic_I_Classic {
     void QuatToEuler( zVEC3& a0) const                                                             zCall( 0x00508DD0 );
     void EulerToQuat( const zVEC3& a0 )                                                            zCall( 0x00508EF0 );
     void QuatToAxisAngle( zVEC3& a0, float& a1 ) const                                             zCall( 0x00508FA0 );
-    void Slerp( float a0, const zCQuat& a1, const zCQuat& a2 )                                     zCall( 0x00518D10 );
-    void Lerp( float a0, const zCQuat& a1, const zCQuat& a2 )                                      zCall( 0x00518EF0 );
+    void Slerp( float a0, const zCQuat& a1, const zCQuat& a2 )                                     zCall( 0x00509020 );
+    void Lerp( float a0, const zCQuat& a1, const zCQuat& a2 )                                      zCall( 0x00509200 );
     void Squad( float a0, const zCQuat& a1, const zCQuat& a2, const zCQuat& a3, const zCQuat& a4 ) zCall( 0x00509300 );
 
     void AxisAngleToQuat( const zVEC3& a0, const float a1 )

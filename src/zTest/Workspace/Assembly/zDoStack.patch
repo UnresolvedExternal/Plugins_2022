@@ -1,18 +1,65 @@
+/*
 #engine [G2A]
 	#patch
-		#assembler [0x00791985]
+		#assembler [0x00791967]
+			orgcode
+
 			push eax
 			push ecx
 			push edx
 
-			push dword ptr [esp+0x60]
-			call $DoStackHook
+			mov eax, [esp+0x18]
+			push eax
+			push ecx
+			call $OnFuncBegin
 
 			pop edx
 			pop ecx
 			pop eax
-
+		#/assembler
+		
+		#assembler [0x00792723]
 			orgcode
+
+			push eax
+			push ecx
+			push edx
+
+			call $OnFuncEnd
+
+			pop edx
+			pop ecx
+			pop eax
+		#/assembler
+
+		#assembler [0x00792566]
+			push edi
+			mov eax, [esp+0x18]
+			push eax
+			call $OnExternalBegin
+			call edi
+			call $OnExternalEnd
+			mov edx, [esp+0x14]
+		#/assembler [0x0079256C]
+	#/patch
+#/engine
+
+#engine [G1, G1A, G2, G2A]
+	#patch [zRandomOnHit]
+		// engine specific
+		INT text_oCNpc_OnDamage_Hit__rand = ZenDef(0x007324AD, 0x007714C2, 0x0077E1B1, 0x0066828E)
+		
+		INT field_oCNpc_oSDamageDescriptor_pNpcAttacker = 0x8
+		
+		INT var_damageDesc = ZenDef(0x220, 0x228, 0x280, 0x280) + 4 + 8
+		// end of engine specific
+		
+		#assembler [text_oCNpc_OnDamage_Hit__rand]
+			mov eax, [esp+$var_damageDesc]
+			mov eax, [eax+$field_oCNpc_oSDamageDescriptor_pNpcAttacker]
+			push eax
+			call $PseudoRandom
 		#/assembler
 	#/patch
 #/engine
+*/

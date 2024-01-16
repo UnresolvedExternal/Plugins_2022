@@ -7,10 +7,10 @@ namespace NAMESPACE
 #define FIELDS(className, fieldName) \
 	const std::vector<size_t> offsets{ offsetof(Gothic_I_Classic::className, fieldName),  offsetof(Gothic_I_Addon::className, fieldName), offsetof(Gothic_II_Classic::className, fieldName), offsetof(Gothic_II_Addon::className, fieldName) }; \
 	const std::string name = STR(field_##className##_##fieldName);
-	
+
 	Sub showOffset(ZSUB(GameEvent::Execute), []
 		{
-			FIELDS(oCMsgManipulate, targetState);
+			FIELDS(CGameManager, gameSession)
 
 			std::vector<string> strings;
 			strings.resize(4);

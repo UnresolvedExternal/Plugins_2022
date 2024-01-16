@@ -1,0 +1,102 @@
+#engine [G1, G1A, G2, G2A]
+	#patch [zHookMobItem]
+		// engine specific
+		INT engine_version = ZenDef(1, 2, 3, 4)
+
+		INT text_oCNpcInventory_HandleEvent_call_GetUseWithItem = ZenDef(0x0066F132, 0x0069C805, 0x006B11E0, 0x0070ED68)
+		INT text_oCMobInter_HasUseWithItem_call_GetUseWithItem = ZenDef(0x0067C8F4, 0x006AB1C4, 0x006BFAD4, 0x0071DB64)
+		INT text_oCMobInter_CanInteractWith_call_GetUseWithItem_1 = ZenDef(0x0067F6A5, 0x006AE888, 0x006C2FFA, 0x0072108A)
+		INT text_oCMobInter_CanInteractWith_call_GetUseWithItem_2 = ZenDef(0x0067F74E, 0x006AE92F, 0x006C3021, 0x007210B1)
+		INT text_oCMobInter_CanInteractWith_call_GetUseWithItem_3 = ZenDef(0x00000000, 0x00000000, 0x006C30FB, 0x0072118D)
+		INT text_oCMobInter_CanChangeState_call_GetUseWithItem = ZenDef(0x0067E4DA, 0x006AD47A, 0x006C1C0A, 0x0071FC9A)
+
+		INT var_npc = ZenDef(0x78, 0x9C, 0xA0, 0xA0)
+		// end of engine specific
+
+		#assembler [text_oCNpcInventory_HandleEvent_call_GetUseWithItem]
+			push ecx
+			orgcode
+			pop ecx
+			push eax
+			mov eax, [ebp+$var_npc]
+			push eax
+			push ecx
+			call $GetUseWithItem
+		#/assembler
+
+		#assembler [text_oCMobInter_HasUseWithItem_call_GetUseWithItem]
+			push ecx
+			orgcode
+			pop ecx
+			push eax
+			mov eax, [esp+0xC]
+			push eax
+			push ecx
+			call $GetUseWithItem
+		#/assembler
+
+		IF engine_version == 2
+			#assembler [text_oCMobInter_CanInteractWith_call_GetUseWithItem_1]
+				push ecx
+				orgcode
+				pop ecx
+				push eax
+				push ebp
+				push ecx
+				call $GetUseWithItem
+			#/assembler
+
+			#assembler [text_oCMobInter_CanInteractWith_call_GetUseWithItem_2]
+				push ecx
+				orgcode
+				pop ecx
+				push eax
+				push ebp
+				push ecx
+				call $GetUseWithItem
+			#/assembler
+		ELSE
+			#assembler [text_oCMobInter_CanInteractWith_call_GetUseWithItem_1]
+				push ecx
+				orgcode
+				pop ecx
+				push eax
+				push esi
+				push ecx
+				call $GetUseWithItem
+			#/assembler
+
+			#assembler [text_oCMobInter_CanInteractWith_call_GetUseWithItem_2]
+				push ecx
+				orgcode
+				pop ecx
+				push eax
+				push esi
+				push ecx
+				call $GetUseWithItem
+			#/assembler
+		END
+
+		IF engine_version >= 3
+			#assembler [text_oCMobInter_CanInteractWith_call_GetUseWithItem_3]
+				push ecx
+				orgcode
+				pop ecx
+				push eax
+				push esi
+				push ecx
+				call $GetUseWithItem
+			#/assembler
+		END
+
+		#assembler [text_oCMobInter_CanChangeState_call_GetUseWithItem]
+			push ecx
+			orgcode
+			pop ecx
+			push eax
+			push edi
+			push ecx
+			call $GetUseWithItem
+		#/assembler
+	#/patch
+#/engine

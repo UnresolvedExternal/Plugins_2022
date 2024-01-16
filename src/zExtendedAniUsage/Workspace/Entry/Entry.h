@@ -15,6 +15,14 @@ namespace NAMESPACE
 		return "STAND";
 	}
 
+	zSTRING GetWeaponString(int mode)
+	{
+		static auto getWeaponString = reinterpret_cast<zSTRING*(__cdecl*)(zSTRING*, int)>(ZENDEF(0x00626100, 0x0064AF70, 0x006523E0, 0x006AEC60));
+
+		zSTRING result;
+		return *getWeaponString(&result, mode);
+	}
+
 	int ChooseAni(zCModel* model, std::initializer_list<zSTRING> names)
 	{
 		for (const zSTRING& name : names)
@@ -28,6 +36,27 @@ namespace NAMESPACE
 		return Invalid;
 	}
 
+	void ApplyRules(oCAniCtrl_Human* controller, int weaponMode, int walkMode)
+	{
+		const zSTRING walk = GetWalkModeString(walkMode);
+		const zSTRING weapon = GetWeaponString(weaponMode);
+
+		for (const auto& pairs : Options::aniPatterns)
+		{
+			int& ani = *reinterpret_cast<int*>(reinterpret_cast<char*>(controller) + pairs.first);
+			ani = Invalid;
+
+			for (const auto& pattern : pairs.second)
+			{
+				const zSTRING aniName = pattern.GetName(weapon, walk);
+				ani = controller->model->GetAniIDFromAniName(aniName);
+
+				if (ani != Invalid)
+					break;
+			}
+		}
+	}
+
 	void __fastcall Hook_oCAniCtrl_Human_SetWalkMode(oCAniCtrl_Human*, void*, int);
 	Hook<void(__thiscall*)(oCAniCtrl_Human*, int)> Ivk_oCAniCtrl_Human_SetWalkMode(ZENFOR(0x006211E0, 0x00645750, 0x0064CFA0, 0x006A9820), &Hook_oCAniCtrl_Human_SetWalkMode, HookMode::Patch);
 	void __fastcall Hook_oCAniCtrl_Human_SetWalkMode(oCAniCtrl_Human* anictrl, void* vtable, int walkMode)
@@ -36,15 +65,22 @@ namespace NAMESPACE
 
 		zCModel* const model = anictrl->GetModel();
 
-		if (!model)
+		if (!anictrl->model || !anictrl->npc)
 			return;
 
-		const zSTRING walk = GetWalkModeString(walkMode);
-		const zSTRING iget = walk + "IGET";
+		ApplyRules(anictrl, anictrl->npc->GetWeaponMode(), walkMode);
+	}
 
-		anictrl->t_stand_2_iget = ChooseAni(model, { Z"T_" + walk + "_2_" + iget, Z"T_STAND_2_IGET" });
-		anictrl->s_iget = ChooseAni(model, { Z"S_" + iget, "S_IGET" });
-		anictrl->t_iget_2_stand = ChooseAni(model, { Z"T_" + iget + "_2_" + walk, Z"T_IGET_2_STAND" });
+	void __fastcall Hook_oCAniCtrl_Human_SetFightAnis(oCAniCtrl_Human*, void*, int);
+	Hook<void(__thiscall*)(oCAniCtrl_Human*, int)> Ivk_oCAniCtrl_Human_SetFightAnis(ZENFOR(0x00622400, 0x00646AF0, 0x0064E1C0, 0x006AAA40), &Hook_oCAniCtrl_Human_SetFightAnis, HookMode::Patch);
+	void __fastcall Hook_oCAniCtrl_Human_SetFightAnis(oCAniCtrl_Human* anictrl, void* vtable, int mode)
+	{
+		Ivk_oCAniCtrl_Human_SetFightAnis(anictrl, mode);
+		
+		if (!anictrl->model || !anictrl->npc)
+			return;
+
+		ApplyRules(anictrl, mode, anictrl->walkmode);
 	}
 
 	Sub addExtraChestScemes(ZSUB(GameEvent::LoadEnd), []

@@ -61,7 +61,7 @@ namespace NAMESPACE
 		void DebugHead(const zVEC3& direction, const zCOLOR& color) const
 		{
 			const zVEC3 from = head->trafo.GetTranslation();
-			const zVEC3 to = from + direction * 100.0f;
+			const zVEC3 to = from + direction * 200.0f;
 			const zMAT4 trafo = model->homeVob->trafoObjToWorld * model->GetTrafoNodeToModel(neck);
 			zlineCache->Line3D(trafo * from, trafo * to, color, true);
 		}
@@ -175,6 +175,16 @@ namespace NAMESPACE
 			targetAt = z;
 		}
 
+		void InitTargetTrafos(float ax, float ay, const zVEC3& up)
+		{
+			ax = std::clamp(ax * 2.0f - 1.0f, -1.0f, 1.0f) * PI / 2.0f;
+			ay = std::clamp(ay * 2.0f - 1.0f, -1.0f, 1.0f) * PI / 2.0f;
+			const zVEC3 x = relaxedRight * sinf(ax);
+			const zVEC3 y = (relaxedAt * relaxedRight) * -sinf(ay);
+			const zVEC3 at = x + y;
+			InitTargetTrafos(head->trafo.GetTranslation() + at, up);
+		}
+
 		void InitTargetTrafos()
 		{
 			targetQuat = relaxedQuat;
@@ -208,9 +218,7 @@ namespace NAMESPACE
 			return (headQuat.Dot(targetQuat) < 0.0f) ? 360.0f - angle : angle;
 		}
 
-	public:
-		LookEngine(oCNpc* npc, const zVEC3* targetPos, int aniId) :
-			aniId{ aniId }
+		void Init(oCNpc* npc)
 		{
 			InitModel(npc);
 			TEST(model);
@@ -218,6 +226,13 @@ namespace NAMESPACE
 			InitHeadTrafos();
 			InitRelaxedTrafos();
 			InitNeckFlexibility();
+		}
+
+	public:
+		LookEngine(oCNpc* npc, const zVEC3* targetPos, int aniId) :
+			aniId{ aniId }
+		{
+			Init(npc);
 			TEST(model);
 
 			if (targetPos)

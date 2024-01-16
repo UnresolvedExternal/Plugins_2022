@@ -15,7 +15,7 @@ namespace Gothic_II_Addon {
     zARC2_ID_HASH = 18,
     zARC2_ID_BYTE = 4,
     zARC2_ID_WORD,
-    zARC2_ID_int,
+    zARC2_ID_BOOL,
     zARC2_ID_VEC3,
     zARC2_ID_COLOR,
     zARC2_ID_RAW,

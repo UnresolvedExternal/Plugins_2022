@@ -1234,7 +1234,7 @@ namespace Gothic_I_Classic {
   public:
     T *data;
     zCList *next;
-  public:
+
     zCList() {
       next = 0;
       data = 0;

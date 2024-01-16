@@ -1,0 +1,39 @@
+#engine [G1]
+	#patch
+		// engine specific
+		INT text_oCNpc_OnDamage_Hit_cmp_random_hitchance = 0x007328B7
+		
+		INT var_oCNpc_OnDamage_Hit_damageDesc = 0x220 + 4 + 8
+		// end of engine specific
+		
+		#assembler [text_oCNpc_OnDamage_Hit_cmp_random_hitchance]
+			push ebp
+			push edi
+			mov eax, [esp+$var_oCNpc_OnDamage_Hit_damageDesc]
+			push eax
+			call $RerollHit
+			mov edi, eax
+			orgcode
+		#/assembler
+	#/patch
+#/engine
+
+#engine [G1A, G2, G2A]
+	#patch
+		// engine specific
+		INT text_oCNpc_OnDamage_Hit_cmp_random_hitchance = ZenDef(0x007328B7, 0x00771990, 0x0077E5B8, 0x00668695)
+		
+		INT var_oCNpc_OnDamage_Hit_damageDesc = ZenDef(0x220, 0x228, 0x280, 0x280) + 4 + 8
+		// end of engine specific
+		
+		#assembler [text_oCNpc_OnDamage_Hit_cmp_random_hitchance]
+			push edi
+			push ebp
+			mov eax, [esp+$var_oCNpc_OnDamage_Hit_damageDesc]
+			push eax
+			call $RerollHit
+			mov ebp, eax
+			orgcode
+		#/assembler
+	#/patch
+#/engine

@@ -37,6 +37,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zFairCritSequence", "zFairC
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zSarDamageFormula", "zSarDamageFormula\zSarDamageFormula.vcxproj", "{29C83052-341A-4FDD-82E7-57F625FD55B2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zUnstuckSlidingPlayer", "zUnstuckSlidingPlayer\zUnstuckSlidingPlayer.vcxproj", "{8E431DE7-AA61-43C3-870C-71454AD99E91}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -391,6 +393,26 @@ Global
 		{29C83052-341A-4FDD-82E7-57F625FD55B2}.G2A Release|x86.Build.0 = G2A Release|Win32
 		{29C83052-341A-4FDD-82E7-57F625FD55B2}.Release|x86.ActiveCfg = Release|Win32
 		{29C83052-341A-4FDD-82E7-57F625FD55B2}.Release|x86.Build.0 = Release|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.Debug|x86.ActiveCfg = Debug|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.Debug|x86.Build.0 = Debug|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G1 Debug|x86.ActiveCfg = G1 Debug|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G1 Debug|x86.Build.0 = G1 Debug|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G1 Release|x86.ActiveCfg = G1 Release|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G1 Release|x86.Build.0 = G1 Release|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G1A Debug|x86.ActiveCfg = G1A Debug|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G1A Debug|x86.Build.0 = G1A Debug|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G1A Release|x86.ActiveCfg = G1A Release|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G1A Release|x86.Build.0 = G1A Release|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G2 Debug|x86.ActiveCfg = G2 Debug|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G2 Debug|x86.Build.0 = G2 Debug|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G2 Release|x86.ActiveCfg = G2 Release|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G2 Release|x86.Build.0 = G2 Release|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G2A Debug|x86.ActiveCfg = G2A Debug|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G2A Debug|x86.Build.0 = G2A Debug|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G2A Release|x86.ActiveCfg = G2A Release|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.G2A Release|x86.Build.0 = G2A Release|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.Release|x86.ActiveCfg = Release|Win32
+		{8E431DE7-AA61-43C3-870C-71454AD99E91}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -10,7 +10,7 @@ namespace NAMESPACE
 
 	Sub showOffset(ZSUB(GameEvent::Execute), []
 		{
-			FIELDS(CGameManager, gameSession)
+			FIELDS(oCAniCtrl_Human, comboNr)
 
 			std::vector<string> strings;
 			strings.resize(4);

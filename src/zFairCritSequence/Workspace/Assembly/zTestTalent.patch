@@ -1,5 +1,7 @@
 #engine [G1]
-	#patch
+	#patch [zTestTalent]
+		PrintScreen("1.1")
+
 		// engine specific
 		INT text_oCNpc_OnDamage_Hit_cmp_random_hitchance = 0x007328B7
 		
@@ -19,7 +21,9 @@
 #/engine
 
 #engine [G1A, G2, G2A]
-	#patch
+	#patch [zTestTalent]
+		PrintScreen("2.1")
+
 		// engine specific
 		INT text_oCNpc_OnDamage_Hit_cmp_random_hitchance = ZenDef(0x007328B7, 0x00771990, 0x0077E5B8, 0x00668695)
 		

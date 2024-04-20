@@ -88,47 +88,47 @@ namespace NAMESPACE
 			CPatch::ExecuteResource(CPlugin::GetCurrentPlugin()->GetModule(), MAKEINTRESOURCE(IDR_PATCH1), "PATCH");
 		});
 
-	Sub test(ZSUB(GameEvent::Execute), []
-		{
-			constexpr int maxSequence = 15;
-			constexpr int testSize = 10'000'000;
+	//Sub test(ZSUB(GameEvent::Execute), []
+	//	{
+	//		constexpr int maxSequence = 15;
+	//		constexpr int testSize = 10'000'000;
 
-			cmd << "talent";
+	//		cmd << "talent";
 
-			for (int sequence = 2; sequence <= maxSequence; sequence++)
-				cmd << "\t" << sequence;
+	//		for (int sequence = 2; sequence <= maxSequence; sequence++)
+	//			cmd << "\t" << sequence;
 
-			cmd << endl;
+	//		cmd << endl;
 
-			for (int talent = 10; talent <= 90; talent += 10)
-			{
-				cmd << talent << "%";
-				const float floatTalent = static_cast<float>(talent) / 100.0f;
+	//		for (int talent = 10; talent <= 90; talent += 10)
+	//		{
+	//			cmd << talent << "%";
+	//			const float floatTalent = static_cast<float>(talent) / 100.0f;
 
-				CritGenerator generator;
-				std::array<int, maxSequence - 1> strikes{};
-				int critIndex = -1;
+	//			CritGenerator generator;
+	//			std::array<int, maxSequence - 1> strikes{};
+	//			int critIndex = -1;
 
-				for (int i = 0; i < testSize; i++)
-				{
-					if (generator(floatTalent))
-					{
-						critIndex = i;
-						continue;
-					}
+	//			for (int i = 0; i < testSize; i++)
+	//			{
+	//				if (generator(floatTalent))
+	//				{
+	//					critIndex = i;
+	//					continue;
+	//				}
 
-					for (int sequence = 2; sequence <= maxSequence && sequence <= (i - critIndex); sequence++)
-						strikes[sequence - 2] += 1;
-				}
+	//				for (int sequence = 2; sequence <= maxSequence && sequence <= (i - critIndex); sequence++)
+	//					strikes[sequence - 2] += 1;
+	//			}
 
-				for (int sequence = 2; sequence <= maxSequence; sequence++)
-				{
-					float chance = static_cast<float>(strikes[sequence - 2]) / (testSize - sequence + 1);
-					chance *= 100.0f;
-					cmd << "\t" << chance << "%";
-				}
+	//			for (int sequence = 2; sequence <= maxSequence; sequence++)
+	//			{
+	//				float chance = static_cast<float>(strikes[sequence - 2]) / (testSize - sequence + 1);
+	//				chance *= 100.0f;
+	//				cmd << "\t" << chance << "%";
+	//			}
 
-				cmd << endl;
-			}
-		});
+	//			cmd << endl;
+	//		}
+	//	});
 }

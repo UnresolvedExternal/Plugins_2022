@@ -7,9 +7,14 @@ namespace NAMESPACE
 
 	namespace Options
 	{
+		Sub addTrivia(ZSUB(GameEvent::Execute), []
+			{
+
+			});
+
 		Sub load(ZSUB(GameEvent::DefineExternals), []()
 			{
-				ActiveOptionBase::LoadAll();
+
 			});
 	}
 }

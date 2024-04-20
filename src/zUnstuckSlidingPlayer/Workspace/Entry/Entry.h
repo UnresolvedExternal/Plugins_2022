@@ -204,6 +204,7 @@ namespace NAMESPACE
 			zVEC3 newPos = bestPoly->GetCenter();
 			newPos[VY] += npcPos[VY] - npcFloorY;
 			npc->trafoObjToWorld.SetTranslation(newPos);
+			npc->human_ai->SearchStandAni(true);
 		}
 
 		ZOwner<oCNpc> npc;

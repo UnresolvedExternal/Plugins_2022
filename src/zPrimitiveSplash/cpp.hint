@@ -1,0 +1,11 @@
+#define ZOPTION
+#define ZARGS
+#define ZRETURN
+#define ZEXTERNAL
+#define ZEXTERNAL_MENU
+#define FASTHOOK
+#define FASTHOOK_PATCH
+#define FASTHOOK_OPT
+#define FASTHOOK_PATCH_OPT
+#define ZSUB
+#define COA
